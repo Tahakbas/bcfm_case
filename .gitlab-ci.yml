@@ -1,13 +1,24 @@
 stages:
   - build
+  - test
+
+services:
+  - docker:dind
 
 docker_build:
   stage: build
+  image: docker:latest
   script:
+    - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASSWORD
     - docker build -t tahakbas/bcfmcase-image:latest .
-    - docker push tahakbas/bcfmcase-image:latest 
+    - docker push tahakbas/bcfmcase-image:latest
 
+  
 test:
   stage: test
+  image: node:16
   script:
+    - npm install
+    - npm install -g mocha
     - mocha test
+
