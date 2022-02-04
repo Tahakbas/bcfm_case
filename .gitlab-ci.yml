@@ -1,0 +1,13 @@
+stages:
+  - build
+
+docker_build:
+  stage: build
+  script:
+    - docker build -t tahakbas/bcfmcase-image:latest .
+    - docker push tahakbas/bcfmcase-image:latest 
+
+test:
+  stage: test
+  script:
+    - mocha test
