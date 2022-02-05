@@ -1,9 +1,11 @@
 stages:
+  - deploy
   - build
   - test
-
+image: docker
 services:
   - docker:dind
+  - name: "registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest"
 
 docker_build:
   stage: build
@@ -22,3 +24,16 @@ test:
     - npm install -g mocha
     - mocha test
 
+deploy-api:
+  stage: deploy
+  image: docker
+  tags: 
+    - 'docker'
+  script:
+    - apk add --update python3 python3-dev py3-pip build-base 
+    - pip install awscli --upgrade --user
+    - ~/.local/bin/aws --version
+    - docker login -u AWS -p $(~/.local/bin/aws ecr get-login-password --region us-east-1) 712745578936.dkr.ecr.us-east-1.amazonaws.com
+    - docker build -t api .
+    - docker tag api:latest 712745578936.dkr.ecr.us-east-1.amazonaws.com/case-api-repo:latest
+    - docker push 712745578936.dkr.ecr.us-east-1.amazonaws.com/case-api-repo:latest
